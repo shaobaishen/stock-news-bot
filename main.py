@@ -116,9 +116,11 @@ def main():
     app = ApplicationBuilder().token(BOT_TOKEN).build()
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
-    webhook_url = os.environ.get("WEBHOOK_URL")
-    if webhook_url:
-        port = int(os.environ.get("PORT", 8080))
+    port = int(os.environ.get("PORT", 0))
+    webhook_url = os.environ.get("WEBHOOK_URL", "").rstrip("/")
+
+    if port and webhook_url:
+        logging.info(f"Starting webhook mode on port {port}")
         app.run_webhook(
             listen="0.0.0.0",
             port=port,
@@ -126,6 +128,7 @@ def main():
             url_path="webhook",
         )
     else:
+        logging.info("Starting polling mode")
         app.run_polling()
 
 
