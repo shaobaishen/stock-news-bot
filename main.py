@@ -105,7 +105,18 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 def main():
     app = ApplicationBuilder().token(BOT_TOKEN).build()
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-    app.run_polling()
+
+    webhook_url = os.environ.get("WEBHOOK_URL")
+    if webhook_url:
+        port = int(os.environ.get("PORT", 8080))
+        app.run_webhook(
+            listen="0.0.0.0",
+            port=port,
+            webhook_url=f"{webhook_url}/webhook",
+            url_path="webhook",
+        )
+    else:
+        app.run_polling()
 
 
 if __name__ == "__main__":
